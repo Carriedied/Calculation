@@ -1,0 +1,30 @@
+﻿@model MathExpressionModel
+
+<style type="text/css">    
+           * { margin: 0; padding: 0; }
+           p { padding: 10px; }
+           #left { position: absolute; left: 0; top: 100; width: 50%; }
+           #right { position: absolute; right: 0; top: 100; width: 50%; } 
+</style>
+
+<div id="left">
+    <form asp-action="Index" method="post">
+        <label for="expression">Введите математическое выражение: </label>
+        <input type="text" class="form-control" id="expression" name="Expression" value="@Model.Expression" />
+        <span class="text-danger">@Html.ValidationMessageFor(model => model.Expression)</span>
+        <br />
+        <button type="submit">Отправить</button>
+    </form>
+</div>
+<div id="right">
+    @if (ViewBag.Results != null)
+    {
+        <div>Результат: @ViewBag.Result</div>
+        <ul>
+            @foreach (var result in ViewBag.Results)
+            {
+                <li>@result</li>
+            }
+        </ul>
+    }
+</div>
