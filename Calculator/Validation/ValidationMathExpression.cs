@@ -7,8 +7,6 @@ namespace Calculator.Validation
     {
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
-            SignsMathExpression characters = new SignsMathExpression();
-
             string? inputExpression = value as string;
 
             string replacedInputExpression = inputExpression.Replace(" ", "");
@@ -18,6 +16,11 @@ namespace Calculator.Validation
                 return new ValidationResult("Вы ввели неверное выражение.");
             }
 
+            if (IsFloatingNumber(replacedInputExpression, SignsMathExpression.FloatPoint) == false)
+            {
+                return new ValidationResult("Вы ввели неверное число с десятичной дробью.");
+            }
+            
             if (IsCharactersValid(replacedInputExpression, SignsMathExpression.AllSigns) == false)
             {
                 return new ValidationResult("Выражение содержит недопустимые символы.");
@@ -54,6 +57,36 @@ namespace Calculator.Validation
             if (string.IsNullOrWhiteSpace(input) == true)
             {
                 return false;
+            }
+
+            return true;
+        }
+
+        private bool IsFloatingNumber(string input, char floatPoint)
+        {
+            bool isNumber = false;
+            int floatPointCount = 0;
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsDigit(input[i]))
+                {
+                    isNumber = true;
+                }
+                else if (input[i] == floatPoint && isNumber)
+                {
+                    floatPointCount++;
+
+                    if (floatPointCount > 1)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    isNumber = false;
+                    floatPointCount = 0;
+                }
             }
 
             return true;
@@ -99,9 +132,12 @@ namespace Calculator.Validation
 
             for (int i = 0; i < input.Length; i++)
             {
-                if (input[i] == signDivide && input[i + nextElement] == '0')
+                if (i + nextElement < input.Length)
                 {
-                    return false;
+                    if (input[i] == signDivide && input[i + nextElement] == '0')
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -117,23 +153,23 @@ namespace Calculator.Validation
             {
                 if (allSigns.Contains(input[startIndex]) == true)
                 {
-                    if (input[startIndex] == minus)
-                    {
-                        continue;
-                    }
-                    else
+                    if (input[startIndex] != minus && input[startIndex] != openBracket)
                     {
                         return false;
                     }
                 }
                 
+                if (i + nextIndex == input.Length)
+                {
+                    if (allSigns.Contains(input[i]) == true && input[i] != closeBracket)
+                    {
+                        return false;
+                    }
+                }
+
                 if (input[i] == openBracket && allSigns.Contains(input[i + nextIndex]) == true)
                 {
-                    if (input[i + nextIndex] == minus)
-                    {
-                        continue;
-                    }
-                    else
+                    if (input[i + nextIndex] != minus && input[i + nextIndex] != openBracket)
                     {
                         return false;
                     }
@@ -151,11 +187,7 @@ namespace Calculator.Validation
                 {
                     if (SignsMathExpression.AllOperations.Contains(input[i]) == true && SignsMathExpression.AllOperations.Contains(input[i + nextIndex]) == true)
                     {
-                        if (input[i + nextIndex] == minus)
-                        {
-                            continue;
-                        }
-                        else
+                        if (input[i + nextIndex] != minus || input[i + nextIndex] != closeBracket)
                         {
                             return false;
                         }
