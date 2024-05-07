@@ -43,7 +43,7 @@ namespace Calculator.Validation
 
             if (SignsMathExpression.Brackets.Contains(replacedInputExpression) == true)
             {
-                if (IsExpressionParenthesesCorrect(replacedInputExpression, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket, SignsMathExpression.AllSigns, SignsMathExpression.Minus) == false)
+                if (IsExpressionParenthesesCorrect(replacedInputExpression, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket, SignsMathExpression.AllSigns, SignsMathExpression.Minus, SignsMathExpression.FloatPoint) == false)
                 {
                     return new ValidationResult("Выражение в скобках некорректно.");
                 }
@@ -66,6 +66,7 @@ namespace Calculator.Validation
         {
             bool isNumber = false;
             int floatPointCount = 0;
+            int nextIndex = 1;
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -86,6 +87,14 @@ namespace Calculator.Validation
                 {
                     isNumber = false;
                     floatPointCount = 0;
+                }
+
+                if (i + nextIndex < input.Length)
+                {
+                    if (input[i] == floatPoint && char.IsDigit(input[i + nextIndex]) == false)
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -198,7 +207,7 @@ namespace Calculator.Validation
             return true;
         }
 
-        private bool IsExpressionParenthesesCorrect(string input, char openBracket, char closeBracket, string allSigns, char minus)
+        private bool IsExpressionParenthesesCorrect(string input, char openBracket, char closeBracket, string allSigns, char minus, char floatPoint)
         {
             int indexLastOpenBracket = input.LastIndexOf(openBracket);
             int indexFirstCloseBracketAfterLastOpenBracket = 0;
@@ -218,7 +227,7 @@ namespace Calculator.Validation
 
             subexpression = input.Substring(indexLastOpenBracket + nextIndex, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket + previousIndex);
 
-            bool isSubexpression = IsSubexpression(subexpression, allSigns, minus);
+            bool isSubexpression = IsSubexpression(subexpression, allSigns, minus, floatPoint);
 
             input = input.Remove(indexLastOpenBracket, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket - previousIndex);
 
@@ -228,7 +237,7 @@ namespace Calculator.Validation
             }
             else if (isSubexpression == true && input.Contains(openBracket) == true)
             {
-                IsExpressionParenthesesCorrect(input, openBracket, closeBracket, allSigns, minus);
+                IsExpressionParenthesesCorrect(input, openBracket, closeBracket, allSigns, minus, floatPoint);
             }
             else if (isSubexpression == false)
             {
@@ -238,7 +247,7 @@ namespace Calculator.Validation
             return true;
         }
 
-        private bool IsSubexpression(string subexpression, string allSigns, char minus)
+        private bool IsSubexpression(string subexpression, string allSigns, char minus, char floatPoint)
         {
             bool isEnumerationDigitsNumber = false;
             int startIndex = 0;
@@ -254,7 +263,14 @@ namespace Calculator.Validation
             {
                 if (char.IsDigit(subexpression[i]))
                 {
-                    isEnumerationDigitsNumber = true;
+                    if (IsFloatingNumber(subexpression, floatPoint))
+                    {
+                        isEnumerationDigitsNumber = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
                 if (allSigns.Contains(subexpression[i]) == true && isEnumerationDigitsNumber == true)
@@ -265,11 +281,7 @@ namespace Calculator.Validation
                 }
                 else if (allSigns.Contains(subexpression[i]) == true && isEnumerationDigitsNumber == false)
                 {
-                    if (subexpression[i] == minus && i == startIndex)
-                    {
-                        continue;
-                    }
-                    else
+                    if (subexpression[i] != minus && i != startIndex)
                     {
                         countToken++;
                     }
