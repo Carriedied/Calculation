@@ -9,9 +9,9 @@
         public const char Multiply = '*';
         public const char Divide = '/';
         public const char UnaryMinus = '~';
-        public const char FloatPoint = ',';
-        public const string AllSigns = "()+-*/~,";
-        public const string AllOperations = "+-*/,";
+        public const char FloatPoint = '.';
+        public const string AllSigns = "()+-*/~.";
+        public const string AllOperations = "+-*/.";
         public const string Brackets = "()";
 
         private Dictionary<char, int> _operationPriority;

@@ -18,7 +18,7 @@ namespace Calculator.Validation
 
             if (IsFloatingNumber(replacedInputExpression, SignsMathExpression.FloatPoint) == false)
             {
-                return new ValidationResult("Вы ввели неверное число с десятичной дробью.");
+                return new ValidationResult("Вы ввели неверное число с десятичной дробью или поставили знак \",\", вместо \".\".");
             }
             
             if (IsCharactersValid(replacedInputExpression, SignsMathExpression.AllSigns) == false)

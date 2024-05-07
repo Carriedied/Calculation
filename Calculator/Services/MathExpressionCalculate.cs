@@ -2,6 +2,7 @@
 using Calculator.Models;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Globalization;
 
 namespace Calculator.Services
 {
@@ -26,7 +27,7 @@ namespace Calculator.Services
                 {
                     number = tokens.GetStringNumber(expression, ref i);
 
-                    numbers.Push(Convert.ToDouble(number));
+                    numbers.Push(Convert.ToDouble(number, CultureInfo.InvariantCulture ));
                 }
                 else if (tokens.IsThereSignInListOperators(sign))
                 {
