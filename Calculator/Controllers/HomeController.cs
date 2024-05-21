@@ -9,46 +9,43 @@ namespace Calculator.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IMathExpressionCalculate _mathExpressionCalculate;
-        private readonly IMathExpressionParser _mathExpressionParser;
+        private readonly IMathService _mathService;
+        private readonly SessionResultHistory _sessionHistoryResult;
         private readonly ResultManager _resultManager;
 
-        public HomeController(ILogger<HomeController> logger, IMathExpressionCalculate mathExpressionCalculate, IMathExpressionParser mathExpressionParser, ResultManager resultManager)
+        public HomeController(ILogger<HomeController> logger, IMathService mathService, ResultManager resultManager, SessionResultHistory sessionHistoryResult)
         {
             _logger = logger;
-            _mathExpressionCalculate = mathExpressionCalculate;
-            _mathExpressionParser = mathExpressionParser;
+            _mathService = mathService;
             _resultManager = resultManager;
+            _sessionHistoryResult = sessionHistoryResult;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
+            var results = _resultManager.GetResults();
+
+            ViewBag.Results = results.Select(r => $"{r.Expression} = {r.ExpressionResult}");
+
             return View(new MathExpressionModel());
         }
 
         [HttpPost]
         public IActionResult Index(MathExpressionModel model)
         {
-
-            if (ModelState.IsValid)
+            if (ModelState.IsValid == false)
             {
-                var resultParse = _mathExpressionParser.Parse(model.Expression);
-                var resultCalculate = _mathExpressionCalculate.Evaluate(resultParse);
-
-                var resultsJson = HttpContext.Session.GetString("Results");
-                var results = string.IsNullOrEmpty(resultsJson)
-                 ? new List<string>()
-                 : JsonSerializer.Deserialize<List<string>>(resultsJson);
-
-                results.Add($"{model.Expression} = {resultCalculate}");
-
-                HttpContext.Session.SetString("Results", JsonSerializer.Serialize(results));
-
-                ViewBag.Results = results;
+                return View(model);
             }
 
-            return View(model);
+            model.ImmutableExpression = model.Expression;
+
+            double calculateResult = _mathService.Calculator(model.Expression);
+
+            _sessionHistoryResult.AddResult(model.ImmutableExpression, calculateResult);
+
+            return RedirectToAction("Index");
         }
 
         public IActionResult Privacy()
