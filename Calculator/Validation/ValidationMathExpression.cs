@@ -66,7 +66,6 @@ namespace Calculator.Validation
         {
             bool isNumber = false;
             int floatPointCount = 0;
-            int nextIndex = 1;
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -87,14 +86,6 @@ namespace Calculator.Validation
                 {
                     isNumber = false;
                     floatPointCount = 0;
-                }
-
-                if (i + nextIndex < input.Length)
-                {
-                    if (input[i] == floatPoint && char.IsDigit(input[i + nextIndex]) == false)
-                    {
-                        return false;
-                    }
                 }
             }
 
@@ -210,46 +201,15 @@ namespace Calculator.Validation
         private bool IsExpressionParenthesesCorrect(string input, char openBracket, char closeBracket, string allSigns, char minus, char floatPoint)
         {
             int indexLastOpenBracket = input.LastIndexOf(openBracket);
-<<<<<<< HEAD
+
             if (indexLastOpenBracket == -1)
             {
                 return true;
             }
 
             int indexFirstCloseBracketAfterLastOpenBracket = input.IndexOf(closeBracket, indexLastOpenBracket);
+
             if (indexFirstCloseBracketAfterLastOpenBracket == -1)
-=======
-            int indexFirstCloseBracketAfterLastOpenBracket = 0;
-            string subexpression;
-            int nextIndex = 1;
-            int previousIndex = -1;           
-
-            for (int i = indexLastOpenBracket; i < input.Length; i++)
-            {
-                if (input[i] == closeBracket)
-                {
-                    indexFirstCloseBracketAfterLastOpenBracket = i;
-
-                    break;
-                }
-            }
-
-            subexpression = input.Substring(indexLastOpenBracket + nextIndex, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket + previousIndex);
-
-            bool isSubexpression = IsSubexpression(subexpression, allSigns, minus, floatPoint);
-
-            input = input.Remove(indexLastOpenBracket, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket - previousIndex);
-
-            if (isSubexpression == true && input.Contains(openBracket) == false)
-            {
-                return true;
-            }
-            else if (isSubexpression == true && input.Contains(openBracket) == true)
-            {
-                IsExpressionParenthesesCorrect(input, openBracket, closeBracket, allSigns, minus, floatPoint);
-            }
-            else if (isSubexpression == false)
->>>>>>> de65694cc46a62978af1bb3dec856c9eb9d10831
             {
                 return false;
             }
@@ -284,15 +244,7 @@ namespace Calculator.Validation
             {
                 if (char.IsDigit(subexpression[i]))
                 {
-<<<<<<< HEAD
                     if (IsFloatingNumber(subexpression, floatPoint) == false)
-=======
-                    if (IsFloatingNumber(subexpression, floatPoint))
-                    {
-                        isEnumerationDigitsNumber = true;
-                    }
-                    else
->>>>>>> de65694cc46a62978af1bb3dec856c9eb9d10831
                     {
                         return false;
                     }
@@ -306,18 +258,6 @@ namespace Calculator.Validation
                 if (char.IsDigit(subexpression[i]) == true)
                 {
                     countNumbers++;
-<<<<<<< HEAD
-=======
-                    countToken++;
-                    isEnumerationDigitsNumber = false;
-                }
-                else if (allSigns.Contains(subexpression[i]) == true && isEnumerationDigitsNumber == false)
-                {
-                    if (subexpression[i] != minus && i != startIndex)
-                    {
-                        countToken++;
-                    }
->>>>>>> de65694cc46a62978af1bb3dec856c9eb9d10831
                 }
             }
 
