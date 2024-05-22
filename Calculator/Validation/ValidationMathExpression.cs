@@ -9,12 +9,12 @@ namespace Calculator.Validation
         {
             string? inputExpression = value as string;
 
-            string replacedInputExpression = inputExpression.Replace(" ", "");
-
-            if (IsInputValid(replacedInputExpression) == false)
+            if (IsInputValid(inputExpression) == false)
             {
                 return new ValidationResult("Вы ввели неверное выражение.");
             }
+
+            string replacedInputExpression = inputExpression.Replace(" ", "");
 
             if (IsFloatingNumber(replacedInputExpression, SignsMathExpression.FloatPoint) == false)
             {
@@ -41,7 +41,7 @@ namespace Calculator.Validation
                 return new ValidationResult("В выражении неверно расставлены знаки или числа.");
             }
 
-            if (SignsMathExpression.Brackets.Contains(replacedInputExpression) == true)
+            if (replacedInputExpression.Any(c => SignsMathExpression.Brackets.Contains(c)) == true)
             {
                 if (IsExpressionParenthesesCorrect(replacedInputExpression, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket, SignsMathExpression.AllSigns, SignsMathExpression.Minus, SignsMathExpression.FloatPoint) == false)
                 {
@@ -66,7 +66,6 @@ namespace Calculator.Validation
         {
             bool isNumber = false;
             int floatPointCount = 0;
-            int nextIndex = 1;
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -87,14 +86,6 @@ namespace Calculator.Validation
                 {
                     isNumber = false;
                     floatPointCount = 0;
-                }
-
-                if (i + nextIndex < input.Length)
-                {
-                    if (input[i] == floatPoint && char.IsDigit(input[i + nextIndex]) == false)
-                    {
-                        return false;
-                    }
                 }
             }
 
@@ -210,46 +201,49 @@ namespace Calculator.Validation
         private bool IsExpressionParenthesesCorrect(string input, char openBracket, char closeBracket, string allSigns, char minus, char floatPoint)
         {
             int indexLastOpenBracket = input.LastIndexOf(openBracket);
-            int indexFirstCloseBracketAfterLastOpenBracket = 0;
-            string subexpression;
-            int nextIndex = 1;
-            int previousIndex = -1;           
 
-            for (int i = indexLastOpenBracket; i < input.Length; i++)
-            {
-                if (input[i] == closeBracket)
-                {
-                    indexFirstCloseBracketAfterLastOpenBracket = i;
-
-                    break;
-                }
-            }
-
-            subexpression = input.Substring(indexLastOpenBracket + nextIndex, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket + previousIndex);
-
-            bool isSubexpression = IsSubexpression(subexpression, allSigns, minus, floatPoint);
-
-            input = input.Remove(indexLastOpenBracket, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket - previousIndex);
-
-            if (isSubexpression == true && input.Contains(openBracket) == false)
+            if (indexLastOpenBracket == -1)
             {
                 return true;
             }
-            else if (isSubexpression == true && input.Contains(openBracket) == true)
-            {
-                IsExpressionParenthesesCorrect(input, openBracket, closeBracket, allSigns, minus, floatPoint);
-            }
-            else if (isSubexpression == false)
+
+            int indexFirstCloseBracketAfterLastOpenBracket = input.IndexOf(closeBracket, indexLastOpenBracket);
+
+            if (indexFirstCloseBracketAfterLastOpenBracket == -1)
             {
                 return false;
             }
 
-            return true;
+            string subexpression = input.Substring(indexLastOpenBracket + 1, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket - 1);
+
+            bool isSubexpression = IsSubexpression(subexpression, allSigns, minus, floatPoint);
+
+            if (isSubexpression == false)
+            {
+                return false;
+            }
+
+            int placeRemoveBracketExpression = indexFirstCloseBracketAfterLastOpenBracket - (indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket);
+
+            if (placeRemoveBracketExpression != 0)
+            {
+                if (allSigns.Contains(input[placeRemoveBracketExpression - 1]) == false)
+                {
+                    return false;
+                }
+            }
+
+            input = input.Remove(indexLastOpenBracket, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket + 1);
+            input = input.Insert(indexFirstCloseBracketAfterLastOpenBracket - (indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket), "0");
+
+            return IsExpressionParenthesesCorrect(input, openBracket, closeBracket, allSigns, minus, floatPoint);
+
         }
 
         private bool IsSubexpression(string subexpression, string allSigns, char minus, char floatPoint)
         {
-            bool isEnumerationDigitsNumber = false;
+            SignsMathExpression signsMath = new SignsMathExpression();
+
             int startIndex = 0;
             int countNumbers = 0;
             int countToken = 0;
@@ -261,34 +255,23 @@ namespace Calculator.Validation
 
             for (int i = 0; i < subexpression.Length; i++)
             {
-                if (char.IsDigit(subexpression[i]))
+                if (allSigns.Contains(subexpression[i]) == true && subexpression[i] != floatPoint)
                 {
-                    if (IsFloatingNumber(subexpression, floatPoint))
-                    {
-                        isEnumerationDigitsNumber = true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    countToken++;
                 }
 
-                if (allSigns.Contains(subexpression[i]) == true && isEnumerationDigitsNumber == true)
+                if (char.IsDigit(subexpression[i]) == true)
                 {
+                    signsMath.GetStringNumber(subexpression, ref i);
+
                     countNumbers++;
-                    countToken++;
-                    isEnumerationDigitsNumber = false;
-                }
-                else if (allSigns.Contains(subexpression[i]) == true && isEnumerationDigitsNumber == false)
-                {
-                    if (subexpression[i] != minus && i != startIndex)
-                    {
-                        countToken++;
-                    }
                 }
             }
 
-            countNumbers++;
+            if (subexpression[startIndex] == minus)
+            {
+                countToken--;
+            }
 
             if (countNumbers == countToken + 1)
             {

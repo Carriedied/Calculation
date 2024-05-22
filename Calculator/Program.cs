@@ -10,21 +10,24 @@ namespace Calculator
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IMathExpressionCalculate, MathExpressionCalculate>();
-            builder.Services.AddScoped<IMathExpressionParser, MathExpressionParser>();
-            builder.Services.AddScoped<ResultManager>();
+            builder.Services.AddScoped<IMathExpressionCalculate, Calculation>();
+            builder.Services.AddScoped<IMathExpressionParser, Parser>();
+            builder.Services.AddScoped<IMathService, MathService>();
+            builder.Services.AddSingleton<ResultManager>();
+            builder.Services.AddSingleton<SessionResultHistory>();
 
             builder.Services.AddDistributedMemoryCache();
 
             builder.Services.AddSession(options =>
             {
-                options.Cookie.Name = ".MyApp.Session";
+                options.Cookie.Name = "Calculator.Session";
                 options.IdleTimeout = TimeSpan.FromSeconds(3600);
                 options.Cookie.IsEssential = true;
             });
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddSession();
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 

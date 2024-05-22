@@ -1,4 +1,4 @@
-﻿@model MathExpressionModel
+﻿@model Calculator.Models.MathExpressionModel
 
 <style type="text/css">    
            * { margin: 0; padding: 0; }
@@ -20,7 +20,7 @@
 <div id="right" >
     @if (ViewBag.Results != null)
     {
-        <div>Результат: @ViewBag.Result</div>
+        <div>Результат:</div>
         <ul>
             @foreach (var result in ViewBag.Results)
             {
