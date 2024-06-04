@@ -167,7 +167,7 @@ namespace Calculator.Validation
                 
                 if (i + nextIndex < input.Length)
                 {
-                    if (input[i] == closeBracket && allSigns.Contains(input[i + nextIndex]) == false)
+                    if (input[i] == closeBracket && !allSigns.Contains(input[i + nextIndex]))
                     {
                         return true;
                     }
