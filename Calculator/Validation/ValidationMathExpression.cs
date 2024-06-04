@@ -54,7 +54,7 @@ namespace Calculator.Validation
 
         private bool InputNotValid(string? input)
         {
-            return string.IsNullOrWhiteSpace(input) ? true : false;
+            return string.IsNullOrWhiteSpace(input);
         }
 
         private bool NotFloatingNumber(string input, char floatPoint)
