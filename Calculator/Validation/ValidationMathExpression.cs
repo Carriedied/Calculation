@@ -9,41 +9,41 @@ namespace Calculator.Validation
         {
             string? inputExpression = value as string;
 
-            if (IsInputValid(inputExpression) == false)
+            if (InputNotValid(inputExpression))
             {
                 return new ValidationResult("Вы ввели неверное выражение.");
             }
 
             string replacedInputExpression = inputExpression.Replace(" ", "");
 
-            if (IsFloatingNumber(replacedInputExpression, SignsMathExpression.FloatPoint) == false)
+            if (NotFloatingNumber(replacedInputExpression, SignsMathExpression.FloatPoint))
             {
                 return new ValidationResult("Вы ввели неверное число с десятичной дробью или поставили знак \",\", вместо \".\".");
             }
             
-            if (IsCharactersValid(replacedInputExpression, SignsMathExpression.AllSigns) == false)
+            if (CharactersNotValid(replacedInputExpression, SignsMathExpression.AllSigns))
             {
                 return new ValidationResult("Выражение содержит недопустимые символы.");
             }
 
-            if (IsBracketsBalanceValid(replacedInputExpression, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket) == false)
+            if (BracketsBalanceNotValid(replacedInputExpression, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket))
             {
                 return new ValidationResult("Неправильно расставлены скобки.");
             }
 
-            if (IsNoDivisionZero(replacedInputExpression, SignsMathExpression.Divide) == false)
+            if (IsDivisionZero(replacedInputExpression, SignsMathExpression.Divide))
             {
                 return new ValidationResult("Нельзя делить на ноль.");
             }
 
-            if (IsSignPlacedCorrectly(replacedInputExpression, SignsMathExpression.AllSigns, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket, SignsMathExpression.Minus) == false)
+            if (SignPlacedNotCorrectly(replacedInputExpression, SignsMathExpression.AllSigns, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket, SignsMathExpression.Minus))
             {
                 return new ValidationResult("В выражении неверно расставлены знаки или числа.");
             }
 
-            if (replacedInputExpression.Any(c => SignsMathExpression.Brackets.Contains(c)) == true)
+            if (replacedInputExpression.Any(c => SignsMathExpression.Brackets.Contains(c)))
             {
-                if (IsExpressionParenthesesCorrect(replacedInputExpression, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket, SignsMathExpression.AllSigns, SignsMathExpression.Minus, SignsMathExpression.FloatPoint) == false)
+                if (ExpressionParenthesesNotCorrect(replacedInputExpression, SignsMathExpression.OpenBracket, SignsMathExpression.CloseBracket, SignsMathExpression.AllSigns, SignsMathExpression.Minus, SignsMathExpression.FloatPoint))
                 {
                     return new ValidationResult("Выражение в скобках некорректно.");
                 }
@@ -52,17 +52,12 @@ namespace Calculator.Validation
             return ValidationResult.Success;
         }
 
-        private bool IsInputValid(string? input)
+        private bool InputNotValid(string? input)
         {
-            if (string.IsNullOrWhiteSpace(input) == true)
-            {
-                return false;
-            }
-
-            return true;
+            return string.IsNullOrWhiteSpace(input) ? true : false;
         }
 
-        private bool IsFloatingNumber(string input, char floatPoint)
+        private bool NotFloatingNumber(string input, char floatPoint)
         {
             bool isNumber = false;
             int floatPointCount = 0;
@@ -79,7 +74,7 @@ namespace Calculator.Validation
 
                     if (floatPointCount > 1)
                     {
-                        return false;
+                        return true;
                     }
                 }
                 else
@@ -89,20 +84,15 @@ namespace Calculator.Validation
                 }
             }
 
-            return true;
+            return false;
         }
 
-        private bool IsCharactersValid(string input, string allSymbols)
+        private bool CharactersNotValid(string input, string allSymbols)
         {
-            if (input.All(c => char.IsDigit(c) || allSymbols.Contains(c)) == false)
-            {
-                return false;
-            }
-
-            return true;
+            return input.All(c => char.IsDigit(c) || allSymbols.Contains(c)) ? false : true;
         }
 
-        private bool IsBracketsBalanceValid(string input, char openBracket, char closeBracket)
+        private bool BracketsBalanceNotValid(string input, char openBracket, char closeBracket)
         {
             int balanceOfParentheses = 0;
 
@@ -119,14 +109,14 @@ namespace Calculator.Validation
 
                 if (balanceOfParentheses < 0)
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return balanceOfParentheses == 0;
+            return balanceOfParentheses == 0 ? false : true;
         }
 
-        private bool IsNoDivisionZero(string input, char signDivide)
+        private bool IsDivisionZero(string input, char signDivide)
         {
             int nextElement = 1;
 
@@ -136,34 +126,34 @@ namespace Calculator.Validation
                 {
                     if (input[i] == signDivide && input[i + nextElement] == '0')
                     {
-                        return false;
+                        return true;
                     }
                 }
             }
 
-            return true;
+            return false;
         }
 
-        private bool IsSignPlacedCorrectly(string input, string allSigns, char openBracket, char closeBracket, char minus)
+        private bool SignPlacedNotCorrectly(string input, string allSigns, char openBracket, char closeBracket, char minus)
         {
             int startIndex = 0;
             int nextIndex = 1;
 
             for (int i = 0; i < input.Length; i++)
             {
-                if (allSigns.Contains(input[startIndex]) == true)
+                if (allSigns.Contains(input[startIndex]))
                 {
                     if (input[startIndex] != minus && input[startIndex] != openBracket)
                     {
-                        return false;
+                        return true;
                     }
                 }
                 
                 if (i + nextIndex == input.Length)
                 {
-                    if (allSigns.Contains(input[i]) == true && input[i] != closeBracket)
+                    if (allSigns.Contains(input[i]) && input[i] != closeBracket)
                     {
-                        return false;
+                        return true;
                     }
                 }
 
@@ -171,7 +161,7 @@ namespace Calculator.Validation
                 {
                     if (input[i + nextIndex] != minus && input[i + nextIndex] != openBracket)
                     {
-                        return false;
+                        return true;
                     }
                 }
                 
@@ -179,58 +169,58 @@ namespace Calculator.Validation
                 {
                     if (input[i] == closeBracket && allSigns.Contains(input[i + nextIndex]) == false)
                     {
-                        return false;
+                        return true;
                     }
                 }
                 
                 if (i + nextIndex < input.Length)
                 {
-                    if (SignsMathExpression.AllOperations.Contains(input[i]) == true && SignsMathExpression.AllOperations.Contains(input[i + nextIndex]) == true)
+                    if (SignsMathExpression.AllOperations.Contains(input[i]) && SignsMathExpression.AllOperations.Contains(input[i + nextIndex]))
                     {
                         if (input[i + nextIndex] != minus || input[i + nextIndex] != closeBracket)
                         {
-                            return false;
+                            return true;
                         }
                     }
                 }
             }
 
-            return true;
+            return false;
         }
 
-        private bool IsExpressionParenthesesCorrect(string input, char openBracket, char closeBracket, string allSigns, char minus, char floatPoint)
+        private bool ExpressionParenthesesNotCorrect(string input, char openBracket, char closeBracket, string allSigns, char minus, char floatPoint)
         {
             int indexLastOpenBracket = input.LastIndexOf(openBracket);
 
             if (indexLastOpenBracket == -1)
             {
-                return true;
+                return false;
             }
 
             int indexFirstCloseBracketAfterLastOpenBracket = input.IndexOf(closeBracket, indexLastOpenBracket);
 
             if (indexFirstCloseBracketAfterLastOpenBracket == -1)
             {
-                return false;
+                return true;
             }
 
             string subexpression = input.Substring(indexLastOpenBracket + 1, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket - 1);
 
-            bool isSubexpression = IsSubexpression(subexpression, allSigns, minus, floatPoint);
+            bool isSubexpression = NotSubexpression(subexpression, allSigns, minus, floatPoint);
 
-            if (isSubexpression == false)
+            if (isSubexpression)
             {
-                return false;
+                return true;
             }
 
             input = input.Remove(indexLastOpenBracket, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket + 1);
             input = input.Insert(indexFirstCloseBracketAfterLastOpenBracket - (indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket), "0");
 
-            return IsExpressionParenthesesCorrect(input, openBracket, closeBracket, allSigns, minus, floatPoint);
+            return ExpressionParenthesesNotCorrect(input, openBracket, closeBracket, allSigns, minus, floatPoint);
 
         }
 
-        private bool IsSubexpression(string subexpression, string allSigns, char minus, char floatPoint)
+        private bool NotSubexpression(string subexpression, string allSigns, char minus, char floatPoint)
         {
             SignsMathExpression signsMath = new SignsMathExpression();
 
@@ -238,19 +228,19 @@ namespace Calculator.Validation
             int countNumbers = 0;
             int countToken = 0;
 
-            if (subexpression == "")
+            if (string.IsNullOrEmpty(subexpression))
             {
-                return false;
+                return true;
             }
 
             for (int i = 0; i < subexpression.Length; i++)
             {
-                if (allSigns.Contains(subexpression[i]) == true && subexpression[i] != floatPoint)
+                if (allSigns.Contains(subexpression[i]) && subexpression[i] != floatPoint)
                 {
                     countToken++;
                 }
 
-                if (char.IsDigit(subexpression[i]) == true)
+                if (char.IsDigit(subexpression[i]))
                 {
                     signsMath.GetStringNumber(subexpression, ref i);
 
@@ -263,14 +253,7 @@ namespace Calculator.Validation
                 countToken--;
             }
 
-            if (countNumbers == countToken + 1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return countNumbers == countToken + 1 ? false : true;
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface IMathService
     {
-        double Calculator(string expression);
+        double Calculate(string expression);
     }
 }

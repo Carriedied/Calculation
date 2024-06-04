@@ -4,21 +4,21 @@ namespace Calculator.Services
 {
     public class MathService : IMathService
     {
-        private IMathExpressionParser _parser;
-        private IMathExpressionCalculate _calculate;
+        private IParser _parser;
+        private ICalculator _calculator;
 
-        public MathService(IMathExpressionParser parser, IMathExpressionCalculate calculate)
+        public MathService(IParser parser, ICalculator calculator)
         {
             _parser = parser;
-            _calculate = calculate;
+            _calculator = calculator;
         }
 
-        public double Calculator(string expression)
+        public double Calculate(string expression)
         {
             string parserResult = _parser.Parse(expression);
-            double calculate = _calculate.Evaluate(parserResult);
+            double calculatorResult = _calculator.Evaluate(parserResult);
 
-            return calculate;
+            return calculatorResult;
         }
     }
 }

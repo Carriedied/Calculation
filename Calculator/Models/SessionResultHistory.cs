@@ -1,43 +1,36 @@
 ﻿using Calculator.Interfaces;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Calculator.Models
 {
-    public class SessionResultHistory
+    public class SessionResultHistory : IResultsHistory
     {
-        private IHttpContextAccessor _httpContextAccessor;
-        private ResultManager _resultManager;
+        private readonly ISession _session;
 
-        public SessionResultHistory(IHttpContextAccessor httpContextAccessor, ResultManager resultManager)
+        public SessionResultHistory(IHttpContextAccessor httpContextAccessor)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _resultManager = resultManager;
+            _session = httpContextAccessor.HttpContext.Session;
         }
 
         public void AddResult(string expression, double expressionResult)
         {
-            Results results = new Results(expression, expressionResult);
+            var results = GetResults().ToList();
+            results.Add(new ExpressionsResults(expression, expressionResult));
 
-            _resultManager.AddResult(results);
-
-            var session = _httpContextAccessor.HttpContext.Session;
-
-            session.SetString("Results", JsonSerializer.Serialize(_resultManager.GetResults()));
+            _session.SetString("Results", JsonSerializer.Serialize(results));
         }
 
-        public IEnumerable<Results> GetResults()
+        public IEnumerable<ExpressionsResults> GetResults()
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var resultsJson = session.GetString("Results");
+            var jsonResults = _session.GetString("Results");
 
-            if (string.IsNullOrEmpty(resultsJson))
+            if (string.IsNullOrEmpty(jsonResults))
             {
-                return Enumerable.Empty<Results>();
+                return Enumerable.Empty<ExpressionsResults>();
             }
-            else
-            {
-                return JsonSerializer.Deserialize<IEnumerable<Results>>(resultsJson);
-            }
+
+            return JsonSerializer.Deserialize<IEnumerable<ExpressionsResults>>(jsonResults);
         }
     }
 }

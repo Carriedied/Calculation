@@ -10,11 +10,10 @@ namespace Calculator
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddScoped<IMathExpressionCalculate, Calculation>();
-            builder.Services.AddScoped<IMathExpressionParser, Parser>();
+            builder.Services.AddScoped<ICalculator, ExpressionCalculator>();
+            builder.Services.AddScoped<IParser, ReversePolishNotationParser>();
             builder.Services.AddScoped<IMathService, MathService>();
-            builder.Services.AddSingleton<ResultManager>();
-            builder.Services.AddSingleton<SessionResultHistory>();
+            builder.Services.AddScoped<IResultsHistory, SessionResultHistory>();
 
             builder.Services.AddDistributedMemoryCache();
 

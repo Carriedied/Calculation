@@ -10,23 +10,19 @@ namespace Calculator.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IMathService _mathService;
-        private readonly SessionResultHistory _sessionHistoryResult;
-        private readonly ResultManager _resultManager;
+        private readonly IResultsHistory _historyResult;
 
-        public HomeController(ILogger<HomeController> logger, IMathService mathService, ResultManager resultManager, SessionResultHistory sessionHistoryResult)
+        public HomeController(ILogger<HomeController> logger, IMathService mathService, IResultsHistory historyResult)
         {
             _logger = logger;
             _mathService = mathService;
-            _resultManager = resultManager;
-            _sessionHistoryResult = sessionHistoryResult;
+            _historyResult = historyResult;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            var results = _resultManager.GetResults();
-
-            ViewBag.Results = results.Select(r => $"{r.Expression} = {r.ExpressionResult}");
+            TransferCalculationHistory();
 
             return View(new MathExpressionModel());
         }
@@ -34,29 +30,31 @@ namespace Calculator.Controllers
         [HttpPost]
         public IActionResult Index(MathExpressionModel model)
         {
-            if (ModelState.IsValid == false)
+            if (!ModelState.IsValid)
             {
+                TransferCalculationHistory();
+
                 return View(model);
             }
 
-            model.ImmutableExpression = model.Expression;
+            double calculateResult = _mathService.Calculate(model.Expression);
 
-            double calculateResult = _mathService.Calculator(model.Expression);
-
-            _sessionHistoryResult.AddResult(model.ImmutableExpression, calculateResult);
+            _historyResult.AddResult(model.Expression, calculateResult);
 
             return RedirectToAction("Index");
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private void TransferCalculationHistory()
+        {
+            var results = _historyResult.GetResults();
+
+            ViewBag.Results = results;
         }
     }
 }
