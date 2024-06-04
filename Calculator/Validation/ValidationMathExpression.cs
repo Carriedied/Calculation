@@ -213,16 +213,6 @@ namespace Calculator.Validation
                 return true;
             }
 
-            int placeRemoveBracketExpression = indexFirstCloseBracketAfterLastOpenBracket - (indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket);
-
-            if (placeRemoveBracketExpression != 0)
-            {
-                if (allSigns.Contains(input[placeRemoveBracketExpression - 1]) == false)
-                {
-                    return false;
-                }
-            }
-
             input = input.Remove(indexLastOpenBracket, indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket + 1);
             input = input.Insert(indexFirstCloseBracketAfterLastOpenBracket - (indexFirstCloseBracketAfterLastOpenBracket - indexLastOpenBracket), "0");
 
