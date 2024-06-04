@@ -157,7 +157,7 @@ namespace Calculator.Validation
                     }
                 }
 
-                if (input[i] == openBracket && allSigns.Contains(input[i + nextIndex]) == true)
+                if (input[i] == openBracket && allSigns.Contains(input[i + nextIndex]))
                 {
                     if (input[i + nextIndex] != minus && input[i + nextIndex] != openBracket)
                     {
